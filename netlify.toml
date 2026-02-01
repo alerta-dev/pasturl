@@ -1,12 +1,8 @@
-# Netlify Configuration File
-
-# Redirecciones para las URLs limpias
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Headers para mayor seguridad y anti-indexación
 [[headers]]
   for = "/*"
   [headers.values]
