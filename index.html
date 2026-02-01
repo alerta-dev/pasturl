@@ -252,19 +252,7 @@
             margin: 20px 0;
         }
 
-        .url-info {
-            background: #e8f4f8;
-            border-left: 4px solid #3498db;
-            padding: 15px 20px;
-            margin-bottom: 30px;
-            border-radius: 0 8px 8px 0;
-            font-family: monospace;
-            color: #2c3e50;
-        }
 
-        .url-info strong {
-            color: #2980b9;
-        }
     </style>
 </head>
 <body>
@@ -275,9 +263,6 @@
         </div>
 
         <div class="content">
-            <div id="urlInfo" class="url-info" style="display: none;">
-                Cargando: <strong id="currentFile"></strong>
-            </div>
             <div id="loadingMessage" class="loading">Cargando contenido</div>
             <div id="errorMessage" style="display: none;"></div>
             <div id="markdownContent" class="markdown-content" style="display: none;"></div>
@@ -313,10 +298,6 @@
             const filePath = `public/${fileName}`;
             
             console.log('Intentando cargar:', filePath);
-            
-            // Mostrar qué archivo se está cargando
-            document.getElementById('currentFile').textContent = fileName;
-            document.getElementById('urlInfo').style.display = 'block';
             
             try {
                 const response = await fetch(filePath);
