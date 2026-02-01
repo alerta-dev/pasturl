@@ -110,6 +110,23 @@
             font-family: monospace;
         }
 
+        .error ul {
+            text-align: left;
+            display: inline-block;
+            margin-top: 15px;
+            list-style-position: inside;
+        }
+
+        .error li {
+            margin-bottom: 5px;
+        }
+
+        .error hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e74c3c;
+        }
+
         .markdown-content {
             line-height: 1.8;
             color: #333;
@@ -292,6 +309,13 @@
             return fileName.endsWith('.md') ? fileName : fileName + '.md';
         }
 
+        // Función para escapar HTML y prevenir inyección de código
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // Función para cargar el archivo Markdown
         async function loadMarkdownFile() {
             const fileName = getFileNameFromURL();
@@ -302,11 +326,19 @@
             try {
                 const response = await fetch(filePath);
                 
+                // Verificar si la respuesta es exitosa
                 if (!response.ok) {
                     throw new Error(`Archivo no encontrado: ${fileName}`);
                 }
                 
+                // Verificar que el contenido sea texto/markdown y no HTML
+                const contentType = response.headers.get('content-type');
                 const markdownText = await response.text();
+                
+                // Verificar que no se haya devuelto HTML del index
+                if (markdownText.includes('<!DOCTYPE html>') || markdownText.includes('<html')) {
+                    throw new Error('El archivo no existe o no es un archivo Markdown válido');
+                }
                 
                 // Ocultar el mensaje de carga
                 document.getElementById('loadingMessage').style.display = 'none';
@@ -325,22 +357,63 @@
                 // Ocultar el mensaje de carga
                 document.getElementById('loadingMessage').style.display = 'none';
                 
-                // Mostrar mensaje de error
+                // Mostrar mensaje de error de forma segura usando DOM
                 const errorDiv = document.getElementById('errorMessage');
-                errorDiv.innerHTML = `
-                    <div class="error">
-                        <h2>❌ Archivo no encontrado</h2>
-                        <p>No se pudo cargar el archivo: <code>${fileName}</code></p>
-                        <p><strong>Ruta esperada:</strong> <code>${filePath}</code></p>
-                        <hr style="margin: 20px 0; border-color: #e74c3c;">
-                        <p>Asegúrate de que:</p>
-                        <ul style="text-align: left; display: inline-block; margin-top: 15px;">
-                            <li>El archivo existe en la carpeta <code>public/</code></li>
-                            <li>El nombre del archivo es correcto</li>
-                            <li>La extensión es <code>.md</code></li>
-                        </ul>
-                    </div>
-                `;
+                errorDiv.innerHTML = ''; // Limpiar contenido previo
+                
+                // Crear elementos del DOM manualmente para evitar inyección
+                const errorContainer = document.createElement('div');
+                errorContainer.className = 'error';
+                
+                const title = document.createElement('h2');
+                title.textContent = '❌ Archivo no encontrado';
+                
+                const message1 = document.createElement('p');
+                message1.textContent = 'No se pudo cargar el archivo: ';
+                const code1 = document.createElement('code');
+                code1.textContent = fileName;
+                message1.appendChild(code1);
+                
+                const message2 = document.createElement('p');
+                message2.innerHTML = '<strong>Ruta esperada:</strong> ';
+                const code2 = document.createElement('code');
+                code2.textContent = filePath;
+                message2.appendChild(code2);
+                
+                const hr = document.createElement('hr');
+                
+                const message3 = document.createElement('p');
+                message3.textContent = 'Asegúrate de que:';
+                
+                const ul = document.createElement('ul');
+                
+                const li1 = document.createElement('li');
+                li1.textContent = 'El archivo existe en la carpeta ';
+                const code3 = document.createElement('code');
+                code3.textContent = 'public/';
+                li1.appendChild(code3);
+                
+                const li2 = document.createElement('li');
+                li2.textContent = 'El nombre del archivo es correcto';
+                
+                const li3 = document.createElement('li');
+                li3.textContent = 'La extensión es ';
+                const code4 = document.createElement('code');
+                code4.textContent = '.md';
+                li3.appendChild(code4);
+                
+                ul.appendChild(li1);
+                ul.appendChild(li2);
+                ul.appendChild(li3);
+                
+                errorContainer.appendChild(title);
+                errorContainer.appendChild(message1);
+                errorContainer.appendChild(message2);
+                errorContainer.appendChild(hr);
+                errorContainer.appendChild(message3);
+                errorContainer.appendChild(ul);
+                
+                errorDiv.appendChild(errorContainer);
                 errorDiv.style.display = 'block';
             }
         }
