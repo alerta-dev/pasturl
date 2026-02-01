@@ -489,15 +489,15 @@
         // Cargar la lista de contraseñas desde passwords.json
         async function loadPasswords() {
             try {
-                const response = await fetch('passwords.json');
+                const response = await fetch('accesoaxn.json');
                 if (!response.ok) {
-                    console.warn('passwords.json no encontrado → todos los archivos son públicos');
+                    console.warn(' no encontrado → todos los archivos son públicos');
                     return [];
                 }
                 const data = await response.json();
                 return Array.isArray(data) ? data.filter(p => typeof p === 'string' && p.length > 0) : [];
             } catch (e) {
-                console.warn('Error al cargar passwords.json:', e);
+                console.warn('Error al cargar:', e);
                 return [];
             }
         }
